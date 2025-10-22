@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About - An7 Creats</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Poppins", "Helvetica Neue", Arial, sans-serif;
+      background: linear-gradient(135deg, #f9f9f9, #eef3ff);
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 0 20px 60px;
+    }
+
+    header {
+      width: 100%;
+      max-width: 1000px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 25px 0;
+      position: relative;
+    }
+
+    header img.logo {
+      max-width: 240px;
+      height: auto;
+    }
+
+    .back-btn {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.3s;
+      font-size: 0.9rem;
+    }
+    .back-btn:hover {
+      background: #0056b3;
+    }
+
+    main {
+      max-width: 900px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+      padding: 40px 30px;
+      text-align: center;
+      margin-top: 20px;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: #007bff;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+
+    p {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: #444;
+      margin-bottom: 20px;
+    }
+
+    .highlight {
+      color: #007bff;
+      font-weight: 600;
+    }
+
+    .skills-section {
+      margin-top: 30px;
+    }
+
+    h2 {
+      color: #007bff;
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+    }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .skill-card {
+      background: #f0f6ff;
+      border: 1px solid #cfe0ff;
+      padding: 15px;
+      border-radius: 10px;
+      font-weight: 600;
+      color: #007bff;
+      transition: all 0.3s ease;
+    }
+    .skill-card:hover {
+      background: #007bff;
+      color: #fff;
+      transform: translateY(-4px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .cta {
+      margin-top: 40px;
+      font-size: 1.1rem;
+    }
+
+    .cta a {
+      display: inline-block;
+      background: #007bff;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      padding: 12px 20px;
+      border-radius: 6px;
+      margin-top: 10px;
+      transition: 0.3s;
+    }
+    .cta a:hover {
+      background: #0056b3;
+    }
+
+    footer {
+      margin-top: 40px;
+      color: #777;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 1.6rem; }
+      p { font-size: 0.95rem; }
+      .skill-card { font-size: 0.9rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="index.html" class="back-btn">← Home</a>
+    <img src="https://i.postimg.cc/ZnB5QJJq/In-Shot-20251018-094101685.png" alt="An7 Creats Logo" class="logo" />
+  </header>
+
+  <main>
+    <h1>Hello EveryOne✨</h1>
+    <p>
+      Welcome to <span class="highlight">An7 Creats</span> — a space where creativity, storytelling, and technology blend into pure visual magic.  
+      I’m <span class="highlight">Anusha</span>, the founder and lead editor behind An7 Creats.  
+      My passion lies in turning ordinary moments into cinematic experiences that people can feel, not just watch.
+    </p>
+
+    <p>
+      From weddings to birthdays, short films to brand promos — every project I take on gets my full creative attention.  
+      Whether it’s a <span class="highlight">dark cinematic sequence</span> or a <span class="highlight">vibrant animated poster</span>, I believe every frame should tell a story.
+    </p>
+
+    <div class="skills-section">
+      <h2>🎬 What I Specialize In</h2>
+      <div class="skills-grid">
+        <div class="skill-card">Cinematic Edits</div>
+        <div class="skill-card">Wedding Videos</div>
+        <div class="skill-card">Birthday Highlights</div>
+        <div class="skill-card">Short Films</div>
+        <div class="skill-card">Reels & YouTube Shorts</div>
+        <div class="skill-card">Animated Logos</div>
+        <div class="skill-card">Posters & Thumbnails</div>
+        <div class="skill-card">Flex / Banner Design</div>
+        <div class="skill-card">Promo & Ad Videos</div>
+        <div class="skill-card">Creative Templates</div>
+      </div>
+    </div>
+
+    <div class="cta">
+      <p>🎥 Let’s collaborate and create something unforgettable!</p>
+      <a href="request.html">Send Your Request</a>
+    </div>
+  </main>
+
+  <footer>
+    © 2025 An7 Creats — Designed with ❤️ by Anusha
+  </footer>
+
+</body>
+</html>

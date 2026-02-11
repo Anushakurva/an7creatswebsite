@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLEARNEXT - AI Conversation</title>
+
+    <!-- 🔹 YOUR ORIGINAL CSS (UNCHANGED) -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .conversation-container {
+            background: #fff;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 600px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #ddd;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .message {
+            max-width: 80%;
+            padding: 1rem;
+            border-radius: 15px;
+        }
+        .ai-message {
+            background: #f0f4ff;
+            align-self: flex-start;
+        }
+        .user-message {
+            background: #667eea;
+            color: #fff;
+            align-self: flex-end;
+        }
+        .typing-indicator {
+            display: none;
+            padding-left: 1.5rem;
+            font-style: italic;
+            color: #666;
+        }
+        .typing-indicator.active { display: block; }
+        .chat-input {
+            padding: 1rem;
+            border-top: 1px solid #ddd;
+            display: flex;
+            gap: 1rem;
+        }
+        input {
+            flex: 1;
+            padding: 0.7rem;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 0.7rem 1.2rem;
+            border-radius: 50%;
+            border: none;
+            background: #667eea;
+            color: #fff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="conversation-container">
+    <div class="chat-header">
+        <h2>ClearNext AI Conversation</h2>
+        <p>Answer honestly. This helps personalize your journey.</p>
+    </div>
+
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="typing-indicator" id="typingIndicator">ClearNext AI is typing...</div>
+
+    <div class="chat-input">
+        <input type="text" id="messageInput" placeholder="Type your answer..." />
+        <button id="sendBtn">➤</button>
+    </div>
+</div>
+
+<!-- ✅ CLEAN & CORRECT JS -->
+<script>
+    const chatMessages = document.getElementById("chatMessages");
+    const messageInput = document.getElementById("messageInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const typingIndicator = document.getElementById("typingIndicator");
+
+    function addMessage(text, isUser = false) {
+        const div = document.createElement("div");
+        div.className = `message ${isUser ? "user-message" : "ai-message"}`;
+        div.textContent = text;
+        chatMessages.appendChild(div);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function showTyping() {
+        typingIndicator.classList.add("active");
+    }
+
+    function hideTyping() {
+        typingIndicator.classList.remove("active");
+    }
+
+    async function sendMessage() {
+        const text = messageInput.value.trim();
+        if (!text) return;
+
+        addMessage(text, true);
+        messageInput.value = "";
+        showTyping();
+
+        try {
+            const res = await fetch("http://localhost:5000/api/ai/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: text })
+            });
+
+            const data = await res.json();
+            hideTyping();
+
+            addMessage(data.reply);
+
+            if (data.done === true) {
+                setTimeout(() => {
+                    window.location.href = "tasks.html";
+                }, 2000);
+            }
+        } catch (err) {
+            hideTyping();
+            addMessage("Server error. Please try again.");
+        }
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+    messageInput.addEventListener("keydown", e => {
+        if (e.key === "Enter") sendMessage();
+    });
+
+    // 🔹 First AI message comes ONLY from backend
+    window.onload = async () => {
+        showTyping();
+        const res = await fetch("http://localhost:5000/api/ai/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: "__start__" })
+        });
+        const data = await res.json();
+        hideTyping();
+        addMessage(data.reply);
+    };
+</script>
+
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ClearNext Dashboard</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #f5f7fb;
+    color: #333;
+}
+
+header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 1.5rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    text-align: center;
+}
+
+.stat-icon {
+    font-size: 2rem;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin: 0.5rem 0;
+}
+
+.daily-status {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.daily-status-badge {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.status-pending { background: #fef3c7; color: #92400e; }
+.status-completed { background: #d1fae5; color: #065f46; }
+
+button {
+    padding: 0.8rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    background: #667eea;
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+.activity-list {
+    list-style: none;
+    padding: 0;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    background: white;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 0.8rem;
+    box-shadow: 0 5px 12px rgba(0,0,0,0.05);
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #d1fae5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.link-btn {
+    background: none;
+    border: none;
+    color: #667eea;
+    cursor: pointer;
+    font-weight: 600;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1 id="welcomeTitle">Welcome!</h1>
+    <p id="welcomeSubtitle">Your journey continues today.</p>
+</header>
+
+<div class="container">
+
+    <div class="top-bar">
+        <div>
+            <button class="link-btn" id="profileLink">Profile</button>
+            <button class="link-btn" id="dailyTaskLink">Today's Reflection</button>
+        </div>
+        <button id="logoutBtn">Logout</button>
+    </div>
+
+    <div class="stats-grid" id="statsGrid"></div>
+
+    <div class="daily-status">
+        <div id="statusBadge" class="daily-status-badge status-pending">Not Completed</div>
+        <div id="progressSteps"></div>
+        <br>
+        <button id="actionButton">Complete Today's Reflection</button>
+    </div>
+
+    <h3>Recent Activity</h3>
+    <ul class="activity-list" id="activityList"></ul>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const user = JSON.parse(localStorage.getItem('clearnext_user') || '{}');
+
+    if (!user.username) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    updateWelcomeMessage(user);
+    displayStats(user);
+    displayDailyStatus(user);
+    displayRecentActivity(user);
+    setupEventListeners();
+});
+
+/* ---------- WELCOME ---------- */
+function updateWelcomeMessage(user) {
+    const name = user.profile?.name || user.username;
+    const hour = new Date().getHours();
+    let greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+
+    welcomeTitle.textContent = `${greeting}, ${name}!`;
+
+    const today = new Date().toDateString();
+    if (user.dailyProgress?.[today]?.reflectionCompleted) {
+        welcomeSubtitle.textContent = 'Amazing consistency! See you tomorrow 🚀';
+    } else {
+        welcomeSubtitle.textContent = 'Ready to grow today? Let’s reflect ✨';
+    }
+}
+
+/* ---------- STATS ---------- */
+function displayStats(user) {
+    const dailyProgress = user.dailyProgress || {};
+    const journeyDuration = user.journeyDuration || 30;
+
+    const completedDays = Object.values(dailyProgress).filter(d => d.reflectionCompleted).length;
+
+    let streak = 0;
+    const today = new Date();
+    for (let i = 0; i < 365; i++) {
+        const d = new Date(today);
+        d.setDate(today.getDate() - i);
+        if (dailyProgress[d.toDateString()]?.reflectionCompleted) streak++;
+        else if (i > 0) break;
+    }
+
+    let chars = 0;
+    Object.values(dailyProgress).forEach(d => {
+        if (d.reflection) {
+            chars += d.reflection.learning.length +
+                     d.reflection.feeling.length +
+                     d.reflection.improvement.length;
+        }
+    });
+
+    statsGrid.innerHTML = `
+        <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-value">${completedDays}</div><div>Days Completed</div></div>
+        <div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-value">${streak}</div><div>Current Streak</div></div>
+        <div class="stat-card"><div class="stat-icon">📝</div><div class="stat-value">${chars.toLocaleString()}</div><div>Characters Written</div></div>
+        <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-value">${Math.min(100, Math.round((completedDays / journeyDuration) * 100))}%</div><div>Journey Progress</div></div>
+    `;
+}
+
+/* ---------- DAILY STATUS ---------- */
+function displayDailyStatus(user) {
+    const today = new Date().toDateString();
+    const done = user.dailyProgress?.[today]?.reflectionCompleted;
+
+    if (!done) {
+        statusBadge.textContent = 'Not Completed';
+        statusBadge.className = 'daily-status-badge status-pending';
+        progressSteps.innerHTML = `<p>🧠 Reflection pending</p>`;
+        actionButton.textContent = "Complete Today's Reflection";
+        actionButton.onclick = () => window.location.href = 'daily-reflection.html';
+    } else {
+        statusBadge.textContent = 'Completed';
+        statusBadge.className = 'daily-status-badge status-completed';
+        progressSteps.innerHTML = `<p>✅ Reflection submitted today</p>`;
+        actionButton.textContent = "View Reflection";
+        actionButton.onclick = () => window.location.href = 'daily-reflection.html';
+    }
+}
+
+/* ---------- RECENT ACTIVITY ---------- */
+function displayRecentActivity(user) {
+    const dailyProgress = user.dailyProgress || {};
+    const dates = Object.keys(dailyProgress).sort((a,b)=> new Date(b)-new Date(a)).slice(0,7);
+
+    if (!dates.length) {
+        activityList.innerHTML = `<li class="activity-item">No activity yet</li>`;
+        return;
+    }
+
+    activityList.innerHTML = dates.map(date => `
+        <li class="activity-item">
+            <div class="activity-icon">✅</div>
+            <div>
+                <div>Completed reflection</div>
+                <small>${new Date(date).toLocaleDateString()}</small>
+            </div>
+        </li>
+    `).join('');
+}
+
+/* ---------- EVENTS ---------- */
+function setupEventListeners() {
+    logoutBtn.onclick = () => {
+        localStorage.removeItem('clearnext_user');
+        window.location.href = 'login.html';
+    };
+    profileLink.onclick = () => window.location.href = 'user-info-new.html';
+    dailyTaskLink.onclick = () => window.location.href = 'daily-reflection.html';
+}
+</script>
+
+</body>
+</html>

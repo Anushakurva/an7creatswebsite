@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CLEARNEXT - Daily Reflection</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .reflection-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .date-display {
+            text-align: center;
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+        .reflection-title {
+            font-size: 1.5rem;
+            color: #333;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .question-block {
+            background: #f8f9ff;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #667eea;
+        }
+        .question {
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        .reflection-input {
+            width: 100%;
+            min-height: 120px;
+            padding: 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+        }
+        .char-counter {
+            text-align: right;
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        .honesty-check {
+            background: #fef3c7;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            border-left: 3px solid #d97706;
+        }
+        .honesty-title {
+            font-weight: 600;
+            color: #d97706;
+            margin-bottom: 0.5rem;
+        }
+        .honesty-text {
+            font-size: 0.9rem;
+            color: #92400e;
+        }
+        .honesty-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: not-allowed;
+            opacity: 0.5;
+            transition: all 0.3s ease;
+        }
+        .submit-btn.active {
+            opacity: 1;
+            cursor: pointer;
+        }
+        .submit-btn.active:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="reflection-container">
+        <div class="logo">
+            <h1>CLEARNEXT</h1>
+        </div>
+        
+        <div class="date-display" id="dateDisplay"></div>
+        
+        <h2 class="reflection-title">Daily Reflection</h2>
+        
+        <div class="reflection-questions">
+            <div class="question-block">
+                <div class="question">1. What did you learn from today's task?</div>
+                <textarea class="reflection-input" id="learningInput" placeholder="Share what insights or knowledge you gained..." minlength="30"></textarea>
+                <div class="char-counter"><span id="learningCount">0</span> / 300 characters (minimum 30)</div>
+            </div>
+            
+            <div class="question-block">
+                <div class="question">2. How did this task make you feel?</div>
+                <textarea class="reflection-input" id="feelingInput" placeholder="Describe your emotional response to the task..." minlength="20"></textarea>
+                <div class="char-counter"><span id="feelingCount">0</span> / 200 characters (minimum 20)</div>
+            </div>
+            
+            <div class="question-block">
+                <div class="question">3. What would you do differently next time?</div>
+                <textarea class="reflection-input" id="improvementInput" placeholder="Think about how you could improve your approach..." minlength="25"></textarea>
+                <div class="char-counter"><span id="improvementCount">0</span> / 250 characters (minimum 25)</div>
+            </div>
+        </div>
+        
+        <div class="honesty-check">
+            <div class="honesty-title">🤔 Honesty Check</div>
+            <div class="honesty-text">Your reflections are most valuable when they're honest and genuine.</div>
+            <div class="honesty-checkbox">
+                <input type="checkbox" id="honestyCheck">
+                <label for="honestyCheck">I confirm that my reflections are honest and genuine</label>
+            </div>
+        </div>
+        
+        <button class="submit-btn" id="submitBtn">Submit Reflection</button>
+    </div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const todayDate = new Date();
+            const todayKey = todayDate.toDateString();
+            
+            document.getElementById("dateDisplay").textContent = todayDate.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+            
+            const user = JSON.parse(localStorage.getItem("clearnext_user") || "{}");
+            if (user.dailyProgress && user.dailyProgress[todayKey] && user.dailyProgress[todayKey].reflectionCompleted) {
+                window.location.href = "dashboard-new.html";
+                return;
+            }
+            
+            setupInputValidation();
+            setupFormSubmission();
+        });
+
+        function setupInputValidation() {
+            const inputs = [
+                { el: learningInput, counter: learningCount, min: 30 },
+                { el: feelingInput, counter: feelingCount, min: 20 },
+                { el: improvementInput, counter: improvementCount, min: 25 }
+            ];
+
+            inputs.forEach(item => {
+                item.el.addEventListener("input", () => {
+                    const length = item.el.value.length;
+                    item.counter.textContent = length;
+                    item.counter.style.color = length >= item.min ? "#059669" : "#666";
+                    checkFormValidity();
+                });
+            });
+
+            honestyCheck.addEventListener("change", checkFormValidity);
+        }
+
+        function checkFormValidity() {
+            const isValid = learningInput.value.trim().length >= 30 && feelingInput.value.trim().length >= 20 && improvementInput.value.trim().length >= 25 && honestyCheck.checked;
+            
+            if (isValid) {
+                submitBtn.classList.add("active");
+                submitBtn.disabled = false;
+            } else {
+                submitBtn.classList.remove("active");
+                submitBtn.disabled = true;
+            }
+        }
+
+        function setupFormSubmission() {
+            submitBtn.addEventListener("click", function (e) {
+                e.preventDefault();
+                if (submitBtn.disabled) return;
+
+                const todayKey = new Date().toDateString();
+                const user = JSON.parse(localStorage.getItem("clearnext_user") || "{}");
+
+                if (!user.dailyProgress) user.dailyProgress = {};
+                if (!user.dailyProgress[todayKey]) user.dailyProgress[todayKey] = {};
+
+                user.dailyProgress[todayKey].reflectionCompleted = true;
+                user.dailyProgress[todayKey].reflection = {
+                    learning: learningInput.value.trim(),
+                    feeling: feelingInput.value.trim(),
+                    improvement: improvementInput.value.trim(),
+                    honestyConfirmed: honestyCheck.checked,
+                    completedAt: new Date().toISOString()
+                };
+
+                localStorage.setItem("clearnext_user", JSON.stringify(user));
+                showNotification("Reflection saved successfully!", "success");
+
+                setTimeout(() => {
+                    window.location.href = "dashboard-new.html";
+                }, 1500);
+            });
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement("div");
+            notification.style.cssText = `position: fixed; top: 20px; right: 20px; padding: 1rem 1.5rem; background: ${type === "success" ? "#10b981" : "#ef4444"}; color: white; border-radius: 10px; z-index: 1000;`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+    </script>
+</body>
+</html>
